@@ -1,0 +1,9 @@
+opencv-python
+dlib
+numpy
+scipy
+tensorflow
+matplotlib
+mediapipe
+
+

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VasoVue - Advanced Cardiovascular Monitoring</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- MediaPipe -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1633559619/face_mesh.js" crossorigin="anonymous"></script>
+    
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .glass-dark {
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn-ripple {
+            position: relative;
+            overflow: hidden;
+            transform: translate3d(0, 0, 0);
+        }
+        
+        .btn-ripple:after {
+            content: "";
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10, 10);
+            opacity: 0;
+            transition: transform .5s, opacity 1s;
+        }
+        
+        .btn-ripple:active:after {
+            transform: scale(0, 0);
+            opacity: .3;
+            transition: 0s;
+        }
+        
+        .pulse-overlay {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+        
+        .waveform {
+            stroke-width: 2;
+            fill: none;
+            stroke: #10b981;
+        }
+        
+        .vessel-line {
+            stroke: rgba(239, 68, 68, 0.6);
+            stroke-width: 1;
+            fill: none;
+        }
+        
+        .roi-overlay {
+            fill: rgba(16, 185, 129, 0.2);
+            stroke: rgba(16, 185, 129, 0.8);
+            stroke-width: 2;
+        }
+        
+        .settings-panel {
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        .settings-panel.open {
+            transform: translateX(0);
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .progress-glow {
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+        }
+    </style>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'vasovue': {
+                            primary: '#667eea',
+                            secondary: '#764ba2',
+                            accent: '#10b981',
+                            danger: '#ef4444',
+                            warning: '#f59e0b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="min-h-screen gradient-bg">
+    <!-- Navbar -->
+    <nav class="glassmorphism fixed top-0 w-full z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-eye text-2xl text-white"></i>
+                    <span class="text-xl font-bold text-white">VasoVue</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="settingsBtn" class="text-white hover:text-gray-200 transition-colors">
+                        <i class="fas fa-cog text-xl"></i>
+                    </button>
+                    <button id="helpBtn" class="text-white hover:text-gray-200 transition-colors">
+                        <i class="fas fa-question-circle text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-24 pb-12">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-5xl font-bold text-white mb-6">
+                VasoVue
+                <span class="block text-2xl font-normal mt-2 text-gray-200">
+                    Advanced Cardiovascular Monitoring
+                </span>
+            </h1>
+            <p class="text-lg text-gray-200 mb-8 max-w-2xl mx-auto">
+                Real-time rPPG analysis using cutting-edge facial tracking technology. 
+                Monitor your cardiovascular health with precision and ease.
+            </p>
+            
+            <!-- Main Control Panel -->
+            <div class="glassmorphism rounded-2xl p-8 max-w-4xl mx-auto">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Video Container -->
+                    <div class="relative">
+                        <div id="videoContainer" class="relative rounded-xl overflow-hidden bg-black aspect-video">
+                            <video id="webcam" autoplay muted playsinline class="w-full h-full object-cover"></video>
+                            <canvas id="overlay" class="absolute top-0 left-0 w-full h-full pointer-events-none"></canvas>
+                            
+                            <!-- Recording Indicator -->
+                            <div id="recordingIndicator" class="absolute top-4 left-4 hidden">
+                                <div class="flex items-center space-x-2 bg-red-500 text-white px-3 py-1 rounded-full">
+                                    <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                                    <span class="text-sm font-medium">Recording</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Sample Counter -->
+                            <div id="sampleCounter" class="absolute top-4 right-4 hidden">
+                                <div class="glassmorphism text-white px-3 py-1 rounded-full">
+                                    <span id="sampleCount">0</span>/<span id="sampleTarget">300</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Live Waveform -->
+                        <div class="mt-4 glassmorphism rounded-lg p-4">
+                            <h3 class="text-white font-medium mb-2">Live rPPG Signal</h3>
+                            <svg id="waveform" width="100%" height="80" class="bg-gray-900 rounded">
+                                <path id="waveformPath" class="waveform" d="M0,40 L320,40"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <!-- Controls Panel -->
+                    <div class="space-y-6">
+                        <!-- Progress Section -->
+                        <div class="space-y-4">
+                            <h3 class="text-white font-semibold text-lg">Capture Progress</h3>
+                            <div class="space-y-2">
+                                <div class="flex justify-between text-white text-sm">
+                                    <span>Samples Collected</span>
+                                    <span id="progressText">0 / 300</span>
+                                </div>
+                                <div class="w-full bg-gray-700 rounded-full h-3">
+                                    <div id="progressBar" class="bg-gradient-to-r from-vasovue-accent to-green-400 h-3 rounded-full transition-all duration-300" style="width: 0%"></div>
+                                </div>
+                                <div class="text-center">
+                                    <span id="progressPercentage" class="text-white text-sm">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Control Buttons -->
+                        <div class="space-y-4">
+                            <button id="startBtn" class="w-full btn-ripple bg-vasovue-accent hover:bg-green-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105">
+                                <i class="fas fa-play mr-2"></i>
+                                Start Monitoring
+                            </button>
+                            
+                            <button id="stopBtn" class="w-full btn-ripple bg-vasovue-danger hover:bg-red-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hidden">
+                                <i class="fas fa-stop mr-2"></i>
+                                Stop Recording
+                            </button>
+                            
+                            <button id="exportBtn" class="w-full btn-ripple bg-vasovue-warning hover:bg-yellow-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hidden">
+                                <i class="fas fa-download mr-2"></i>
+                                Export Data
+                            </button>
+                            
+                            <button id="showReportBtn" class="w-full btn-ripple bg-purple-500 hover:bg-purple-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hidden">
+                                <i class="fas fa-chart-line mr-2"></i>
+                                Show Report
+                            </button>
+                        </div>
+                        
+                        <!-- Status Panel -->
+                        <div class="glass-dark rounded-lg p-4">
+                            <h4 class="text-white font-medium mb-3">System Status</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-300">Camera:</span>
+                                    <span id="cameraStatus" class="text-red-400">Disconnected</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-300">Face Detection:</span>
+                                    <span id="faceStatus" class="text-red-400">Not Detected</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-300">FPS:</span>
+                                    <span id="fpsCounter" class="text-gray-300">0</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-300">Signal Quality:</span>
+                                    <span id="signalQuality" class="text-gray-300">--</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Settings Panel -->
+    <div id="settingsPanel" class="fixed top-0 right-0 h-full w-80 glassmorphism settings-panel z-40">
+        <div class="p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-white font-semibold text-lg">Settings</h3>
+                <button id="closeSettings" class="text-white hover:text-gray-200">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="space-y-6">
+                <!-- Camera Selection -->
+                <div>
+                    <label class="block text-white font-medium mb-2">Camera</label>
+                    <select id="cameraSelect" class="w-full bg-gray-700 text-white rounded-lg px-3 py-2">
+                        <option>Default Camera</option>
+                    </select>
+                </div>
+                
+                <!-- Sample Target -->
+                <div>
+                    <label class="block text-white font-medium mb-2">Sample Target</label>
+                    <input id="sampleTargetInput" type="number" value="300" min="100" max="1000" step="50" class="w-full bg-gray-700 text-white rounded-lg px-3 py-2">
+                </div>
+                
+                <!-- Audio Feedback -->
+                <div>
+                    <label class="flex items-center space-x-3">
+                        <input id="audioFeedback" type="checkbox" checked class="form-checkbox h-5 w-5 text-vasovue-accent">
+                        <span class="text-white">Audio Feedback</span>
+                    </label>
+                </div>
+                
+                <!-- Visual Overlays -->
+                <div>
+                    <label class="flex items-center space-x-3">
+                        <input id="showOverlays" type="checkbox" checked class="form-checkbox h-5 w-5 text-vasovue-accent">
+                        <span class="text-white">Show ROI Overlay</span>
+                    </label>
+                </div>
+                
+                <!-- Vessel Lines -->
+                <div>
+                    <label class="flex items-center space-x-3">
+                        <input id="showVessels" type="checkbox" checked class="form-checkbox h-5 w-5 text-vasovue-accent">
+                        <span class="text-white">Show Vessel Lines</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recording Modal -->
+    <div id="recordingModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="glassmorphism rounded-2xl p-8 max-w-md mx-4 text-center">
+            <div class="mb-6">
+                <div class="w-20 h-20 bg-vasovue-accent rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-video text-white text-2xl"></i>
+                </div>
+                <h3 class="text-white font-bold text-xl mb-2">Ready to Start?</h3>
+                <p class="text-gray-200">Position your face in the camera view and click start when ready.</p>
+            </div>
+            
+            <div class="space-y-4">
+                <button id="modalStartBtn" class="w-full btn-ripple bg-vasovue-accent hover:bg-green-600 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105">
+                    <i class="fas fa-play mr-2"></i>
+                    Start Recording
+                </button>
+                <button id="modalCancelBtn" class="w-full btn-ripple bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="glassmorphism rounded-2xl p-8 max-w-md mx-4 text-center">
+            <div class="mb-6">
+                <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check text-white text-2xl"></i>
+                </div>
+                <h3 class="text-white font-bold text-xl mb-2">Success!</h3>
+                <p class="text-gray-200">rPPG data collection completed successfully.</p>
+            </div>
+            
+            <div class="space-y-4">
+                <button id="exportSuccessBtn" class="w-full btn-ripple bg-vasovue-warning hover:bg-yellow-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300">
+                    <i class="fas fa-download mr-2"></i>
+                    Export Data
+                </button>
+                <button id="newSessionBtn" class="w-full btn-ripple bg-vasovue-accent hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300">
+                    <i class="fas fa-redo mr-2"></i>
+                    New Session
+                </button>
+                <button id="closeSuccessBtn" class="w-full btn-ripple bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="glassmorphism rounded-2xl p-8 text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+            <p class="text-white">Initializing MediaPipe...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="/static/js/vasovue-core.js"></script>
+    <script type="module" src="/static/js/vasovue-ui.js"></script>
+    <script type="module" src="/static/js/vasovue-mediapipe.js"></script>
+    <script type="module" src="/static/js/vasovue-rppg.js"></script>
+    <script type="module" src="/static/js/vasovue-main.js"></script>
+</body>
+</html>

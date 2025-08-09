@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VasoVue - Cardiovascular Analysis Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .pulse-animation {
+            animation: pulse-glow 2s ease-in-out infinite alternate;
+        }
+        @keyframes pulse-glow {
+            from { box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3); }
+            to { box-shadow: 0 8px 40px rgba(16, 185, 129, 0.6); }
+        }
+        .report-section {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+        .report-section:nth-child(2) { animation-delay: 0.1s; }
+        .report-section:nth-child(3) { animation-delay: 0.2s; }
+        .report-section:nth-child(4) { animation-delay: 0.3s; }
+        .report-section:nth-child(5) { animation-delay: 0.4s; }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .metric-card {
+            transition: all 0.3s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body class="p-4">
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <div class="report-section glass-card rounded-2xl p-6 mb-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-heartbeat text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold text-white">VasoVue Analysis Report</h1>
+                        <p class="text-blue-200">Comprehensive Cardiovascular Assessment</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-white font-semibold" id="report-date"></p>
+                    <p class="text-blue-200 text-sm">Session Duration: <span id="session-duration">--</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Metrics Dashboard -->
+        <div class="report-section grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <!-- Systolic BP -->
+            <div class="metric-card glass-card rounded-xl p-6 text-center">
+                <div class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-arrow-up text-white text-xl"></i>
+                </div>
+                <h3 class="text-white text-lg font-semibold mb-2">Systolic</h3>
+                <p class="text-3xl font-bold text-white" id="systolic-value">--</p>
+                <p class="text-blue-200 text-sm">mmHg</p>
+                <div class="mt-2">
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold" id="systolic-status">--</span>
+                </div>
+            </div>
+
+            <!-- Diastolic BP -->
+            <div class="metric-card glass-card rounded-xl p-6 text-center">
+                <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-arrow-down text-white text-xl"></i>
+                </div>
+                <h3 class="text-white text-lg font-semibold mb-2">Diastolic</h3>
+                <p class="text-3xl font-bold text-white" id="diastolic-value">--</p>
+                <p class="text-blue-200 text-sm">mmHg</p>
+                <div class="mt-2">
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold" id="diastolic-status">--</span>
+                </div>
+            </div>
+
+            <!-- Heart Rate -->
+            <div class="metric-card glass-card rounded-xl p-6 text-center">
+                <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 pulse-animation">
+                    <i class="fas fa-heartbeat text-white text-xl"></i>
+                </div>
+                <h3 class="text-white text-lg font-semibold mb-2">Heart Rate</h3>
+                <p class="text-3xl font-bold text-white" id="heart-rate-value">--</p>
+                <p class="text-blue-200 text-sm">BPM</p>
+                <div class="mt-2">
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold" id="hr-status">--</span>
+                </div>
+            </div>
+
+            <!-- Overall Score -->
+            <div class="metric-card glass-card rounded-xl p-6 text-center">
+                <div class="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-star text-white text-xl"></i>
+                </div>
+                <h3 class="text-white text-lg font-semibold mb-2">Health Score</h3>
+                <p class="text-3xl font-bold text-white" id="health-score">--</p>
+                <p class="text-blue-200 text-sm">/ 100</p>
+                <div class="mt-2">
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold" id="score-status">--</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts and Analysis -->
+        <div class="report-section grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <!-- rPPG Signal Chart -->
+            <div class="glass-card rounded-xl p-6">
+                <h3 class="text-white text-xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-chart-line mr-3 text-green-400"></i>
+                    rPPG Signal Analysis
+                </h3>
+                <div class="h-64 bg-gray-900 rounded-lg p-4">
+                    <canvas id="signal-chart"></canvas>
+                </div>
+                <div class="grid grid-cols-3 gap-4 mt-4 text-sm">
+                    <div class="text-center">
+                        <p class="text-blue-200">SNR</p>
+                        <p class="text-white font-semibold" id="snr-value">--</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-blue-200">Samples</p>
+                        <p class="text-white font-semibold" id="samples-count">--</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-blue-200">Quality</p>
+                        <p class="text-white font-semibold" id="signal-quality">--</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BP Category Chart -->
+            <div class="glass-card rounded-xl p-6">
+                <h3 class="text-white text-xl font-semibold mb-4 flex items-center">
+                    <i class="fas fa-chart-pie mr-3 text-blue-400"></i>
+                    BP Category Analysis
+                </h3>
+                <div class="h-64 bg-gray-900 rounded-lg p-4">
+                    <canvas id="bp-category-chart"></canvas>
+                </div>
+                <div class="mt-4">
+                    <div class="flex justify-between items-center">
+                        <span class="text-blue-200">Current Category:</span>
+                        <span class="px-3 py-1 rounded-full text-sm font-semibold" id="current-category">--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Analysis -->
+        <div class="report-section glass-card rounded-xl p-6 mb-6">
+            <h3 class="text-white text-xl font-semibold mb-4 flex items-center">
+                <i class="fas fa-microscope mr-3 text-purple-400"></i>
+                Detailed Analysis & Recommendations
+            </h3>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Risk Assessment -->
+                <div class="bg-gray-900 rounded-lg p-4">
+                    <h4 class="text-white font-semibold mb-3 flex items-center">
+                        <i class="fas fa-exclamation-triangle mr-2 text-yellow-400"></i>
+                        Risk Assessment
+                    </h4>
+                    <div id="risk-assessment" class="space-y-2">
+                        <!-- Risk factors will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Recommendations -->
+                <div class="bg-gray-900 rounded-lg p-4">
+                    <h4 class="text-white font-semibold mb-3 flex items-center">
+                        <i class="fas fa-lightbulb mr-2 text-green-400"></i>
+                        Recommendations
+                    </h4>
+                    <div id="recommendations" class="space-y-2">
+                        <!-- Recommendations will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historical Trends -->
+        <div class="report-section glass-card rounded-xl p-6 mb-6">
+            <h3 class="text-white text-xl font-semibold mb-4 flex items-center">
+                <i class="fas fa-chart-bar mr-3 text-orange-400"></i>
+                Historical Trends
+            </h3>
+            <div class="h-64 bg-gray-900 rounded-lg p-4">
+                <canvas id="trend-chart"></canvas>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="report-section glass-card rounded-xl p-6">
+            <div class="flex flex-wrap gap-4 justify-center">
+                <button onclick="downloadReport()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center">
+                    <i class="fas fa-download mr-2"></i>
+                    Download PDF Report
+                </button>
+                <button onclick="shareReport()" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center">
+                    <i class="fas fa-share mr-2"></i>
+                    Share Report
+                </button>
+                <button onclick="scheduleFollowUp()" class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center">
+                    <i class="fas fa-calendar mr-2"></i>
+                    Schedule Follow-up
+                </button>
+                <button onclick="goBack()" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back to Monitor
+                </button>
+            </div>
+        </div>
+
+        <!-- Medical Disclaimer -->
+        <div class="report-section glass-card rounded-xl p-6 mt-6 border-l-4 border-red-500">
+            <div class="flex items-start">
+                <i class="fas fa-exclamation-triangle text-red-400 text-xl mr-3 mt-1"></i>
+                <div>
+                    <h4 class="text-red-300 font-semibold text-lg mb-2">⚠️ Medical Disclaimer</h4>
+                    <p class="text-red-200 text-sm leading-relaxed">
+                        <strong>Important:</strong> This cardiovascular analysis report is for informational purposes only and should not be considered as medical advice, diagnosis, or treatment. The measurements and predictions may not be accurate and should not replace professional medical consultation. We are not responsible for any decisions made based on this information or any consequences that may arise from its use. Always consult with qualified healthcare professionals for medical concerns and before making any health-related decisions.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Copyright Notice -->
+        <div class="text-center mt-8 pb-6">
+            <div class="glass-card rounded-lg px-6 py-4 inline-block">
+                <p class="text-white text-sm font-medium">
+                    <i class="fas fa-copyright mr-2"></i>
+                    © 2024 Ayush Mishra. All rights reserved.
+                </p>
+                <p class="text-gray-300 text-xs mt-1">
+                    VasoVue™ - Advanced Cardiovascular Monitoring System
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/vasovue-report.js') }}"></script>
+</body>
+</html>

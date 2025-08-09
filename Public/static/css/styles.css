@@ -1,0 +1,344 @@
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2ecc71;
+    --background-color: #f9f9f9;
+    --text-color: #333;
+    --accent-color: #e74c3c;
+    --light-blue: #d6eaf8;
+    --light-green: #d5f5e3;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    padding-top: 56px;
+}
+
+.navbar {
+    background-color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.hero-section {
+    background: linear-gradient(to right, var(--light-blue), var(--light-green));
+    padding: 4rem 0;
+    text-align: center;
+}
+
+.hero-title {
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #2c3e50;
+}
+
+.hero-subtitle {
+    font-weight: 300;
+    margin-bottom: 2rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    padding: 10px 24px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #2980b9;
+    border-color: #2980b9;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.feature-card {
+    background-color: white;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+    height: 100%;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+}
+
+.feature-title {
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.webcam-container {
+    position: relative;
+    max-width: 640px;
+    margin: 0 auto;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+#webcam, #canvas {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.camera-frame {
+    position: relative;
+    margin: 0 auto;
+    max-width: 640px;
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.camera-controls {
+    margin-top: 20px;
+}
+
+.bp-reading {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #2c3e50;
+    margin: 15px 0;
+}
+
+#webcam {
+    transform: scaleX(-1); /* Mirror effect */
+    width: 100%;
+}
+
+/* Face detection box styling */
+.face-box {
+    position: absolute;
+    border: 3px solid #00ff00;
+    background: transparent;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.face-box-label {
+    position: absolute;
+    color: #00ff00;
+    font-size: 12px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 2px 5px;
+    top: 0;
+    left: 0;
+    transform: translateY(-100%);
+}
+
+#canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+/* Add these styles to your existing CSS */
+/* Results Page Specific Styles */
+.bp-visualization {
+    position: relative;
+    height: 200px;
+    margin: 2rem 0;
+}
+
+.bp-meter {
+    width: 180px;
+    height: 180px;
+    background: conic-gradient(
+        #dc3545 0% 10%,
+        #fd7e14 10% 30%,
+        #ffc107 30% 50%,
+        #28a745 50% 100%
+    );
+    border-radius: 50%;
+    position: relative;
+    margin: 0 auto;
+}
+
+.bp-needle {
+    position: absolute;
+    left: 50%;
+    bottom: 50%;
+    width: 3px;
+    height: 90px;
+    background: #333;
+    transform-origin: bottom center;
+    transform: translateX(-50%) rotate(0deg);
+    transition: transform 1s ease-out;
+    z-index: 10;
+}
+
+.bp-needle:after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -5px;
+    width: 13px;
+    height: 13px;
+    background: #333;
+    border-radius: 50%;
+}
+
+.bp-values {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.bp-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #0d6efd;
+}
+
+.bp-divider {
+    font-size: 2rem;
+    margin: 0 0.25rem;
+}
+
+.bp-unit {
+    font-size: 1.25rem;
+    color: #6c757d;
+}
+
+.bp-category {
+    display: inline-block;
+    padding: 0.5rem 1.25rem;
+    border-radius: 2rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.emotion-display {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.emotion-icon {
+    font-size: 2rem;
+}
+
+.emotion-label {
+    font-size: 1.25rem;
+    font-weight: 500;
+}
+
+.suggestion-list {
+    list-style: none;
+    padding: 0;
+}
+
+.suggestion-list li {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: flex-start;
+}
+
+.suggestion-list li:last-child {
+    border-bottom: none;
+}
+
+.suggestion-list li i {
+    margin-right: 1rem;
+    color: #0d6efd;
+    margin-top: 0.25rem;
+}
+
+.chart-container {
+    position: relative;
+    height: 250px;
+}
+
+/* Add to your styles.css */
+.progress {
+    height: 20px;
+    border-radius: 10px;
+    background-color: #e9ecef;
+    overflow: visible;
+}
+
+.progress-bar {
+    transition: width 0.3s ease;
+    border-radius: 10px;
+}
+
+.progress-bar-striped {
+    background-image: linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.15) 25%,
+        transparent 25%,
+        transparent 50%,
+        rgba(255, 255, 255, 0.15) 50%,
+        rgba(255, 255, 255, 0.15) 75%,
+        transparent 75%,
+        transparent
+    );
+    background-size: 1rem 1rem;
+}
+
+.progress-bar-animated {
+    animation: progress-bar-stripes 1s linear infinite;
+}
+
+@keyframes progress-bar-stripes {
+    from {
+        background-position: 1rem 0;
+    }
+    to {
+        background-position: 0 0;
+    }
+}
+
+#dataStatusContainer {
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+#recordingStatus {
+    border-radius: 8px;
+}
+
+
+/* Emotion Icons */
+.fa-face-smile { color: #ffc107; } /* happy */
+.fa-face-meh { color: #fd7e14; } /* neutral */
+.fa-face-frown { color: #dc3545; } /* sad */
+.fa-face-angry { color: #dc3545; } /* angry */
+.fa-face-surprise { color: #17a2b8; } /* surprised */
+.fa-face-grimace { color: #6f42c1; } /* disgusted */
+.fa-face-fearful { color: #6f42c1; } /* fearful */
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 2rem 0;
+    }
+    
+    .feature-card {
+        margin-bottom: 1.5rem;
+    }
+}

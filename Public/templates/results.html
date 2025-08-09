@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Blood Pressure Results - FacePulse</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../static/css/styles.css">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .bp-category { display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: 500; margin-bottom: 1rem; }
+        .normal { background-color: #eafaf1; color: #27ae60; }
+        .elevated { background-color: #fff3cd; color: #ffc107; }
+        .hypertension-1 { background-color: #ffe0cc; color: #fd7e14; }
+        .hypertension-2 { background-color: #f8d7da; color: #dc3545; }
+        .unknown { background-color: #e9ecef; color: #6c757d; }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="/"><i class="fas fa-heartbeat me-2"></i>FacePulse</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/#how-it-works">How It Works</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/#about">About</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Results Section -->
+    <section class="py-5 mt-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10">
+                    <!-- Loading State -->
+                    <div id="loadingState" class="text-center py-5">
+                        <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
+                        <h3 class="mt-4">Processing your results...</h3>
+                        <p class="text-muted">This may take a few moments</p>
+                    </div>
+                    <!-- Results Container -->
+                    <div id="resultsContainer" style="display: none;">
+                        <div class="text-center mb-5">
+                            <h1>Your Blood Pressure Results</h1>
+                            <p class="text-muted">Based on facial analysis and our prediction algorithm</p>
+                        </div>
+                        <!-- Error Message -->
+                        <div id="errorMessage" class="alert alert-danger" style="display: none;">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <span id="errorText">Error displaying results.</span>
+                        </div>
+                        <div class="row">
+                            <!-- BP Results Column -->
+                            <div class="col-md-6 mb-4 mb-md-0">
+                                <h3>Blood Pressure Reading</h3>
+                                <div class="bp-values mb-3">
+                                    <span class="bp-value" id="systolicValue">--</span>
+                                    <span class="bp-divider">/</span>
+                                    <span class="bp-value" id="diastolicValue">--</span>
+                                    <span class="bp-unit">mmHg</span>
+                                </div>
+                                <span id="bpCategory" class="bp-category unknown">--</span>
+                                <div class="mt-3">
+                                    <h5>Detected Emotion</h5>
+                                    <span id="detectedEmotion">--</span>
+                                </div>
+                                <div class="mt-4">
+                                    <a href="/" class="btn btn-primary"><i class="fas fa-home me-2"></i>Return Home</a>
+                                    <a href="/" class="btn btn-outline-primary"><i class="fas fa-redo me-2"></i>Try Another Reading</a>
+                                </div>
+                            </div>
+                            <!-- Suggestions Column -->
+                            <div class="col-md-6">
+                                <h3>Health Suggestions</h3>
+                                <ul id="suggestionsList"><li>Loading suggestions...</li></ul>
+                                <div class="alert alert-info mt-4">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>Important Note</strong>
+                                    <p class="mb-0">This is an estimated reading based on facial analysis. For accurate blood pressure measurements, please use medically approved devices and consult healthcare professionals.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- BP Categories & Tips -->
+                    <div class="row mt-5">
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h4 class="card-title">Blood Pressure Categories</h4>
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Category</th>
+                                                <th>Systolic</th>
+                                                <th>Diastolic</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr><td>Normal</td><td>&lt;120</td><td>&lt;80</td></tr>
+                                            <tr><td>Elevated</td><td>120-129</td><td>&lt;80</td></tr>
+                                            <tr><td>Hypertension Stage 1</td><td>130-139</td><td>80-89</td></tr>
+                                            <tr><td>Hypertension Stage 2</td><td>&ge;140</td><td>&ge;90</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h4 class="card-title">Healthy Lifestyle Tips</h4>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item"><i class="fas fa-utensils text-success me-2"></i>Maintain a healthy, low-sodium diet rich in fruits and vegetables</li>
+                                        <li class="list-group-item"><i class="fas fa-walking text-success me-2"></i>Regular physical activity (at least 150 minutes per week)</li>
+                                        <li class="list-group-item"><i class="fas fa-weight text-success me-2"></i>Maintain a healthy weight</li>
+                                        <li class="list-group-item"><i class="fas fa-glass-whiskey text-success me-2"></i>Limit alcohol consumption</li>
+                                        <li class="list-group-item"><i class="fas fa-smoking-ban text-success me-2"></i>Avoid smoking and tobacco use</li>
+                                        <li class="list-group-item"><i class="fas fa-bed text-success me-2"></i>Get 7-8 hours of quality sleep per night</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6"><h5><i class="fas fa-heartbeat me-2"></i>FacePulse</h5><p>Smart Blood Pressure Tracking Through Facial Analysis</p></div>
+                <div class="col-md-6 text-md-end">
+                    <p>&copy; 2025 FacePulse. All rights reserved.</p>
+                    <p><small>For educational and informational purposes only.</small></p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/result.js"></script>
+</body>
+</html>

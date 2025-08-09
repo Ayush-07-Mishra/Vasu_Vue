@@ -1,0 +1,31 @@
+{
+  "name": "vasovue",
+  "version": "2.0.0",
+  "description": "VasoVue - Advanced rPPG-based cardiovascular monitoring with real-time facial analysis",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "author": "Vedant Mehar",
+  "license": "ISC",
+  "dependencies": {
+    "@tensorflow/tfjs": "^4.22.0",
+    "body-parser": "^2.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.1.0",
+    "mongoose": "^8.13.3",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.2",
+    "python-shell": "^5.0.0",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
