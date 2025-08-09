@@ -84,3 +84,18 @@ Uploads/
 
 # Large binary files
 git-filter-repo
+
+# Model files
+*.pkl
+*.joblib
+*.h5
+*.ckpt
+*.pt
+*.pth
+*.pb
+*-shard*
+*.tflite
+*.onnx
+
+# Generated files
+generated-icon.png
