@@ -27,12 +27,13 @@
         
         .glassmorphism {
             background: rgba(255, 255, 255, 0.25);
+            -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
-        
         .glass-dark {
             background: rgba(0, 0, 0, 0.1);
+            -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
@@ -139,10 +140,10 @@
                     <span class="text-xl font-bold text-white">VasoVue</span>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <button id="settingsBtn" class="text-white hover:text-gray-200 transition-colors">
+                    <button id="settingsBtn" class="text-white hover:text-gray-200 transition-colors" title="Settings">
                         <i class="fas fa-cog text-xl"></i>
                     </button>
-                    <button id="helpBtn" class="text-white hover:text-gray-200 transition-colors">
+                    <button id="helpBtn" class="text-white hover:text-gray-200 transition-colors" title="Help">
                         <i class="fas fa-question-circle text-xl"></i>
                     </button>
                 </div>
@@ -273,7 +274,7 @@
         <div class="p-6">
             <div class="flex items-center justify-between mb-6">
                 <h3 class="text-white font-semibold text-lg">Settings</h3>
-                <button id="closeSettings" class="text-white hover:text-gray-200">
+                <button id="closeSettings" class="text-white hover:text-gray-200" title="Close Settings">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
@@ -282,15 +283,15 @@
                 <!-- Camera Selection -->
                 <div>
                     <label class="block text-white font-medium mb-2">Camera</label>
-                    <select id="cameraSelect" class="w-full bg-gray-700 text-white rounded-lg px-3 py-2">
+                    <select id="cameraSelect" class="w-full bg-gray-700 text-white rounded-lg px-3 py-2" title="Select camera device">
                         <option>Default Camera</option>
                     </select>
                 </div>
                 
                 <!-- Sample Target -->
                 <div>
-                    <label class="block text-white font-medium mb-2">Sample Target</label>
-                    <input id="sampleTargetInput" type="number" value="300" min="100" max="1000" step="50" class="w-full bg-gray-700 text-white rounded-lg px-3 py-2">
+                    <label for="sampleTargetInput" class="block text-white font-medium mb-2">Sample Target</label>
+                    <input id="sampleTargetInput" type="number" value="300" min="100" max="1000" step="50" class="w-full bg-gray-700 text-white rounded-lg px-3 py-2" title="Set the number of samples to collect (100-1000)" placeholder="Enter sample count">
                 </div>
                 
                 <!-- Audio Feedback -->
